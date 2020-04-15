@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+  	<groupId>com.gimplatform</groupId>
+  	<artifactId>gimp-pom</artifactId>
+	<version>1.0.2</version>
+	<packaging>pom</packaging>
+	
+	<name>gimp-pom</name>
+	<description>General Information Manager Platform -- pom</description>
+
+	<!-- 使用最新的spring-boot版本 -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.5.RELEASE</version>
+		<relativePath/>
+	</parent>
+
+	<properties>
+  		<druid.version>1.1.9</druid.version>
+  		<log4j-web.version>2.10.0</log4j-web.version>
+  		<fastjson.version>1.2.47</fastjson.version>
+  		<springfox-swagger.version>2.8.0</springfox-swagger.version>
+  		<commons-collections4.version>4.1</commons-collections4.version>
+  		<oracle.ojdbc6.version>11.2.0.4</oracle.ojdbc6.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.7</java.version>
+	</properties>
+	
+	<!-- 配置部署的远程仓库 --> 
+	<distributionManagement>
+		<repository>
+			<id>nexus</id>
+			<name>Nexus Release Repository</name>
+			<url>http://127.0.0.1:8081/repository/maven-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus</id>
+			<name>Nexus Snapshot Repository</name>
+			<url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Camden.SR6</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>druid</artifactId>
+			  	<version>${druid.version}</version>
+			</dependency>
+			<dependency>
+			    <groupId>com.oracle</groupId>
+			    <artifactId>ojdbc6</artifactId>
+			    <version>${oracle.ojdbc6.version}</version>
+			</dependency>
+			<dependency>
+			    <groupId>io.springfox</groupId>
+			    <artifactId>springfox-swagger2</artifactId>
+			    <version>${springfox-swagger.version}</version>
+			</dependency>
+			<dependency>
+			    <groupId>io.springfox</groupId>
+			    <artifactId>springfox-swagger-ui</artifactId>
+			    <version>${springfox-swagger.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>  
+				<!-- 去掉spring默认的日志配置 -->
+		        <exclusion>  
+		            <groupId>org.springframework.boot</groupId>  
+		            <artifactId>spring-boot-starter-logging</artifactId>  
+		        </exclusion>  
+		    </exclusions>  
+		</dependency>
+        
+        <!-- 使用log4j 2.0版本 -->
+		<dependency>  
+		    <groupId>org.springframework.boot</groupId>  
+		    <artifactId>spring-boot-starter-log4j2</artifactId>  
+		</dependency>  
+		<dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-web</artifactId>
+			<version>${log4j-web.version}</version>
+        </dependency>
+        
+        <!-- 引用json处理工具 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${fastjson.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-collections4</artifactId>
+	        <version>${commons-collections4.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+					<!-- <compilerArguments>
+                        <verbose />
+                        这个配置很特殊：windows下使用分号（;）分隔，linux/mac下使用冒号（:）分隔
+                        <bootclasspath>${java.home}/lib/rt.jar;${java.home}/lib/jce.jar</bootclasspath>
+                    </compilerArguments> -->
+				</configuration>
+			</plugin>
+			<!-- 打包插件 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>  
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                       	 	<!--描述文件路径 -->
+                            <descriptors> 			
+                                <descriptor>src/main/resources/assembly/descriptor.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+			<!-- jar打包插件,排除配置文件 
+            <plugin>  
+			 	<groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-jar-plugin</artifactId>
+			    <executions>
+					<execution>
+						<id>default-jar</id>
+			            <phase>package</phase>
+			            <goals>
+			                <goal>jar</goal>
+			            </goals>
+			            <configuration>
+			                <excludes>
+			                    <exclude>*.yml</exclude>
+			                </excludes>
+			            </configuration>
+			        </execution>    
+			    </executions>   
+			</plugin> -->
+		</plugins>
+		<!-- 打包resources目录下的指定文件 
+        <resources>  
+			<resource>  
+				<directory>src/main/resources</directory>  
+				<filtering>true</filtering>  
+		        <includes>  
+		            <include>application.yml</include>
+		        </includes>   
+			</resource>  
+		</resources>  -->   
+	</build>
+	
+</project>
